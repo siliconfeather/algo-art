@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <script src="https://3Dmol.org/build/3Dmol.ui-min.js"></script>  
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+        .sketchfab-embed-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1; /* Set a lower value than 3Dmol viewer to send it to the back */
+        }
+        .sketchfab-embed-wrapper iframe {
+            position: absolute; /* Adjust (absolute, relative, sticky, fixed)
+            *top: 10%;    /* Adjust value as needed */
+            *left: 10%;   /* Adjust value as needed */
+            width: 100%;  /* Adjust value as needed */
+            height: 100%; /* Adjust value as needed */
+            opacity: .6;  /* Adjust value as needed */
+            background-color: black;
+        }
+        .mol-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;  /* Adjust width as needed */
+            height: 100%; /* Adjust height as needed */
+            /* margin: 10%; /* Adjust margin as needed */
+            opacity: .6; /* Adjust opacity as needed */
+            background-color: black;
+            z-index: 2;  /* Set a higher value than sketchfab-embed-wrapper to bring it to the front */
+        }
+    </style>
+</head>
+<body>    
+    <div class="sketchfab-embed-wrapper"> 
+        <iframe title="Basic Human Male" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/598d1d1866df48f999fabadb017429d1/embed?autospin=1&autostart=1&ui_hint=0&ui_theme=dark&ui_infos=0&background=000000"> </iframe>
+    </div>
+
+    <div id="container-01" class="mol-container"></div>
+    
+    <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.7.1.js"></script>
+    
+    <script>
+        let element = document.querySelector('#container-01');
+        let config = { backgroundColor: 'transparent' }; // adjust background color as needed
+
+        let viewer = $3Dmol.createViewer( element, config );
+
+        // List of PDB IDs
+        //let pdbIds = ['6lu7', '2por', '1tup'];
+
+        let pdbIds = [
+            '6lu7', // SARS-CoV-2 main protease
+            '6m03', // SARS-CoV-2 spike protein
+            '6w63', // SARS-CoV-2 NSP7 and NSP8 complex
+            '6w75', // SARS-CoV-2 NSP9
+            '6w4h', // SARS-CoV-2 NSP10 and NSP16 complex
+            '6w01', // SARS-CoV-2 NSP15
+            '6w02', // SARS-CoV-2 NSP15 (Hexamer)
+            '6vyb', // SARS-CoV-2 spike protein (Prefusion)
+            '6vxx', // SARS-CoV-2 spike protein (Prefusion, one RBD up)
+            '6vw1', // SARS-CoV-2 spike protein (Prefusion, two RBD up)
+            '6lzg', // SARS-CoV-2 spike protein (Prefusion, three RBD up)
+            '6m0j', // SARS-CoV-2 spike protein (Postfusion)
+            '6w41', // SARS-CoV-2 NSP1
+            '6w42', // SARS-CoV-2 NSP1 (C-terminal domain)
+            '6w4b', // SARS-CoV-2 NSP1 (N-terminal domain)
+            '6w61', // SARS-CoV-2 NSP2
+            '6w4f', // SARS-CoV-2 NSP3 (PL-PRO domain)
+            '6w9c', // SARS-CoV-2 NSP3 (Macro domain)
+            '6w6y', // SARS-CoV-2 NSP3 (Y-domain)
+            '6wcf'  // SARS-CoV-2 NSP4
+        ];
+        let index = 0;
+
+        function loadPdb() {
+            // Fade out the current model
+            let model = viewer.getModel(0);
+            if (model) {
+                let opacity = 1;
+                let fadeOut = setInterval(function() {
+                    opacity -= 0.1;
+                    if (opacity <= 0) {
+                        clearInterval(fadeOut);
+                        viewer.removeModel(model);
+                        loadNextPdb();
+                    } else {
+                        model.setStyle({}, {cartoon: {color: 'spectrum', opacity: opacity}});
+                        viewer.render();
+                    }
+                }, 100);
+            } else {
+                loadNextPdb();
+            }
+        }
+
+        function loadNextPdb() {
+            // Load the next PDB ID
+            let pdbId = pdbIds[index];
+            $3Dmol.download('pdb:' + pdbId, viewer, {}, function() {
+                console.log("PDB file loaded successfully");
+                viewer.setStyle({}, {cartoon: {color: 'spectrum', opacity: 1}});
+                viewer.zoomTo();
+                viewer.spin('y');
+
+                // Fade in the new model
+                let model = viewer.getModel(0);
+                let opacity = 0;
+                let fadeIn = setInterval(function() {
+                    opacity += 0.1;
+                    if (opacity >= 1) {
+                        clearInterval(fadeIn);
+                    }
+                    model.setStyle({}, {cartoon: {color: 'spectrum', opacity: opacity}});
+                    viewer.render();
+                }, 100);
+
+                // Move to the next PDB ID
+                index = (index + 1) % pdbIds.length;
+            });
+        }
+
+        // Load the first PDB ID
+        loadPdb();
+
+        // Change the PDB ID every 10 seconds
+        setInterval(loadPdb, 1000);
+    </script>
+
+</body>
+</html>
