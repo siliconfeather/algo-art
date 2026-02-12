@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bioluminescent Meadow</title>
+<style>
+	html, body { margin: 0; height: 100%; background: #0a0f12; }
+	canvas { display: block; width: 100%; height: 100%; }
+	.hint {
+		position: fixed;
+		left: 16px;
+		bottom: 16px;
+		padding: 6px 10px;
+		color: #dbe6f5;
+		background: rgba(10, 14, 18, 0.5);
+		border-radius: 10px;
+		font: 12px/1.2 "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+		letter-spacing: 0.3px;
+	}
+</style>
+</head>
+<body>
+<div class="hint">Move to stir the meadow. Click to release a bloom ring.</div>
+<canvas id="c"></canvas>
+<script>
+(() => {
+	const canvas = document.getElementById("c");
+	const ctx = canvas.getContext("2d");
+
+	function resize() {
+		const dpr = Math.max(1, window.devicePixelRatio || 1);
+		canvas.width = Math.floor(window.innerWidth * dpr);
+		canvas.height = Math.floor(window.innerHeight * dpr);
+		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	}
+	window.addEventListener("resize", resize);
+	resize();
+
+	const W = () => canvas.width / (window.devicePixelRatio || 1);
+	const H = () => canvas.height / (window.devicePixelRatio || 1);
+
+	// Pointer state drives interactive pull.
+	const pointer = { x: 0, y: 0, active: false, down: false };
+	window.addEventListener("pointermove", (e) => {
+		pointer.x = e.clientX;
+		pointer.y = e.clientY;
+		pointer.active = true;
+	});
+	window.addEventListener("pointerleave", () => { pointer.active = false; });
+	window.addEventListener("pointerdown", () => { pointer.down = true; });
+	window.addEventListener("pointerup", () => { pointer.down = false; });
+
+	// Seed particles that drift like fireflies in a meadow.
+	const count = 1600;
+	const particles = Array.from({ length: count }, (_, i) => ({
+		x: Math.random() * window.innerWidth,
+		y: Math.random() * window.innerHeight,
+		vx: 0,
+		vy: 0,
+		hue: 90 + (i % 240),
+		size: 1.0 + (i % 6) * 0.25
+	}));
+
+	// Bloom ring state for clicks.
+	const bloom = { active: false, start: 0, x: 0, y: 0 };
+	window.addEventListener("click", (e) => {
+		bloom.active = true;
+		bloom.start = performance.now();
+		bloom.x = e.clientX;
+		bloom.y = e.clientY;
+	});
+
+	// Small flow field used to guide drifting motion.
+	function flowAngle(x, y, time) {
+		// Organic wind field using layered sine waves.
+		return Math.sin((x + y) * 0.004 + time * 0.8) +
+			Math.cos((x - y) * 0.003 - time * 0.6) * 1.2;
+	}
+
+	function draw(t) {
+		const time = t * 0.001;
+		const w = W();
+		const h = H();
+
+    // Soft gradient wash for a dusk meadow glow with color gradient (slower fade for trails).
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, "rgba(18, 24, 32, 0.08)");
+    bg.addColorStop(0.5, "rgba(12, 18, 26, 0.10)");
+    bg.addColorStop(1, "rgba(10, 14, 20, 0.12)");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < particles.length; i++) {
+			const p = particles[i];
+
+			// Flow field gives each particle a gentle direction.
+			const angle = flowAngle(p.x, p.y, time);
+			const ax = Math.cos(angle) * 0.08;
+			const ay = Math.sin(angle) * 0.08;
+
+			// Gently pull toward the pointer to create interactivity.
+			if (pointer.active) {
+				const dx = pointer.x - p.x;
+				const dy = pointer.y - p.y;
+				const d = Math.hypot(dx, dy) || 1;
+				const pull = Math.min(1, 140 / d) * 0.08;
+				p.vx += (dx / d) * pull;
+				p.vy += (dy / d) * pull;
+			}
+
+			p.vx = (p.vx + ax) * 0.98;
+			p.vy = (p.vy + ay) * 0.98;
+			p.x += p.vx;
+			p.y += p.vy;
+
+			// Wrap around edges for endless flow.
+			if (p.x < -20) p.x = w + 20;
+			if (p.x > w + 20) p.x = -20;
+			if (p.y < -20) p.y = h + 20;
+			if (p.y > h + 20) p.y = -20;
+
+			// Color drift for a bioluminescent feel.
+			const hue = (p.hue + time * 18) % 360;
+			const light = 60 + Math.sin(time * 0.8 + i) * 10;
+
+      // Draw outer glow halo for stronger presence.
+      ctx.fillStyle = `hsla(${hue}, 78%, ${light}%, 0.25)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw core particle.
+      ctx.fillStyle = `hsla(${hue}, 78%, ${light}%, 0.75)`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+		// Click bloom ring: a quick burst of petals.
+		if (bloom.active) {
+			const elapsed = (performance.now() - bloom.start) * 0.001;
+			const radius = elapsed * 120;
+			const petals = 120;
+			const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+			if (radius < Math.min(w, h) * 0.6) {
+				for (let i = 0; i < petals; i++) {
+					const a = i * goldenAngle + elapsed * 0.6;
+					const x = bloom.x + Math.cos(a) * radius;
+					const y = bloom.y + Math.sin(a) * radius;
+					const size = 1.5 + Math.sin(i + elapsed * 4) * 0.6;
+					const hue = (200 + i * 2 + elapsed * 90) % 360;
+
+					// Bloom ring glow.
+					ctx.fillStyle = `hsla(${hue}, 85%, 68%, 0.25)`;
+					ctx.beginPath();
+					ctx.arc(x, y, size * 2.2, 0, Math.PI * 2);
+					ctx.fill();
+
+					// Bloom ring core.
+					ctx.fillStyle = `hsla(${hue}, 85%, 68%, 0.65)`;
+					ctx.beginPath();
+					ctx.arc(x, y, size, 0, Math.PI * 2);
+					ctx.fill();
+				}
+			} else {
+				bloom.active = false;
+			}
+		}
+
+		requestAnimationFrame(draw);
+	}
+
+	// Initial wash.
+	ctx.fillStyle = "#0a0f12";
+	ctx.fillRect(0, 0, W(), H());
+	requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
