@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Algo Art | Public Collection</title>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@300;500;700&family=Space+Grotesk:wght@300;500;700&display=swap");
+
+  :root {
+    --ink: #0a0d12;
+    --midnight: #0f1320;
+    --dawn: #1d2236;
+    --mist: rgba(255, 255, 255, 0.08);
+    --accent: #f3c98b;
+    --accent-2: #7fd1c7;
+    --accent-3: #d79cf4;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: #e8edf5;
+    background: radial-gradient(circle at 20% 15%, #1b1f33 0%, #101522 35%, #0a0d12 70%);
+    font-family: "Space Grotesk", "Trebuchet MS", Arial, sans-serif;
+    padding: 40px 20px 70px;
+  }
+
+  .stage {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .glow {
+    position: absolute;
+    inset: -80px -40px auto auto;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(247, 199, 120, 0.25) 0%, rgba(15, 19, 32, 0) 70%);
+    pointer-events: none;
+  }
+
+  header {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+
+  h1 {
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-weight: 500;
+    font-size: clamp(2.4rem, 2vw + 2rem, 3.4rem);
+    margin: 0;
+    letter-spacing: 0.6px;
+  }
+
+  .subtitle {
+    max-width: 720px;
+    color: #b9c6df;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+    min-height: 220px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(127, 209, 199, 0.18), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .card:hover::after { opacity: 1; }
+
+  .badge {
+    align-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.4px;
+    background: rgba(243, 201, 139, 0.12);
+    color: var(--accent);
+  }
+
+  h2 {
+    margin: 0;
+    font-family: "Fraunces", "Times New Roman", serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    color: #c4d0e6;
+    line-height: 1.55;
+    font-size: 0.95rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .actions a {
+    text-decoration: none;
+    color: #0a0d12;
+    background: linear-gradient(120deg, #f3c98b, #ffd6a3);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .actions a.secondary {
+    background: transparent;
+    color: #cbd8ef;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .actions a:hover { transform: translateY(-2px); }
+
+  footer {
+    margin-top: 60px;
+    color: #8fa2bf;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .note {
+    margin-top: 10px;
+    color: #9fb0c9;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="glow"></div>
+    <header>
+      <h1>Algo Art Collection</h1>
+      <p class="subtitle">
+        A public set of generative art explorations. Each piece lives in its own folder
+        within the <a href="https://github.com/siliconfeather/algo-art" style="color: var(--accent-2);">algo-art</a>
+        repository and can be opened directly as a live HTML artwork.
+      </p>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <span class="badge">01 Collection</span>
+        <h2>Karlinski Studies</h2>
+        <p>Geometric forms and layered structures with structured motion and color rhythms.</p>
+        <div class="actions">
+          <a href="01%20-%20karlinski/karlinski.html">Open Art</a>
+          <a class="secondary" href="https://github.com/siliconfeather/algo-art/tree/main/01%20-%20karlinski">View Folder</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="badge">02 Collection</span>
+        <h2>Gen Algo Artbreeder</h2>
+        <p>Algorithmic compositions that evolve through layered visual rules and gradients.</p>
+        <div class="actions">
+          <a href="02%20-%20gen-algo_artbreeder/gen-algo_artbreeder.html">Open Art</a>
+          <a class="secondary" href="https://github.com/siliconfeather/algo-art/tree/main/02%20-%20gen-algo_artbreeder">View Folder</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="badge">03 Collection</span>
+        <h2>Bio Entangle</h2>
+        <p>Organic entanglements inspired by biology, with woven motion and texture.</p>
+        <div class="actions">
+          <a href="03%20-%20bio-entangle/bio-entangle.html">Open Art</a>
+          <a class="secondary" href="https://github.com/siliconfeather/algo-art/tree/main/03%20-%20bio-entangle">View Folder</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="badge">04 Collection</span>
+        <h2>Bio Data Art</h2>
+        <p>Data-driven organic visuals with a softer palette and layered depth.</p>
+        <div class="actions">
+          <a href="04%20-%20bio-dataArt/bio-dataArt.html">Open Art</a>
+          <a class="secondary" href="https://github.com/siliconfeather/algo-art/tree/main/04%20-%20bio-dataArt">View Folder</a>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <div>Built for the public repository: siliconfeather/algo-art</div>
+      <div class="note">Host this file as index.html in the repo root to enable GitHub Pages.</div>
+    </footer>
+  </div>
+</body>
+</html>
